@@ -23,7 +23,7 @@ func mainloop(){
 	timeTicker := time.NewTicker(time.Millisecond * time.Duration(int32(1000 / 15)))
 	defer func() {
 		timeTicker.Stop()
-		log.Print("loop end")		
+		log.Print("loop end")
 	}()
 	
 	for {
@@ -43,12 +43,17 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	defer c.Close()	
 	deliveries := utilities.ParseMessage(c, MaxPackageLen, utilities.WS_REQUEST)
 	
+	log.Print("player connected")
 	for {
 		select {
 			case recvData, _ := <-deliveries:
 				j2 := make(map[string]interface{})
 				err = json.Unmarshal(recvData, &j2)
-				roomMgr.HandleNetMsg(j2)
+				if j2["id"] == 10000 {
+					roomMgr.AddUser(j2["uid"].(uint64), c)
+				} else {
+					roomMgr.HandleNetMsg(j2)	
+				}				
 		}
 	}
 }

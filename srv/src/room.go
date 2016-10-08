@@ -4,6 +4,10 @@ import (
 	"log"
 )
 
+const (
+	MAX_PLAYER = 10
+)
+
 type Room struct {
 	roomid   	uint64
 	players  	map[uint64]*Player
@@ -18,18 +22,16 @@ func (this *Room) Create(roomid uint64){
 	this.players = make(map[uint64]*Player)
 }
 
-func (this *Room) AddUser(uid uint64){
-	newplayer := new(Player)
-	this.players[uid] = newplayer
-	newplayer.Create(uid)
+func (this *Room) AddUser(newplayer *Player){	
+	this.players[newplayer.uid] = newplayer	
 }
 
 func (this *Room) Loop() {
 	for _, player := range this.players {
 		player.Loop()
-	}
+	}	
 }
 
-func (this *Room) IsFull() bool {
-	return false
+func (this *Room) IsFull() bool {	
+	return len(this.players) < MAX_PLAYER
 }
