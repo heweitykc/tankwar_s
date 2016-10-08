@@ -2,14 +2,37 @@
 
 import (
 	"flag"
-	"fmt"
 	"log"
-	"net/http"	
+	"time"	
+	"net/http"
+	"utilities"	
+	"encoding/json"	
 	"github.com/gorilla/websocket"
+)
+
+const (	
+	MaxPackageLen uint32 = 200000
 )
 
 var addr = flag.String("addr", "0.0.0.0:8080", "http service address")
 var upgrader = websocket.Upgrader{}
+var roomMgr *RoomMgr
+
+func mainloop(){
+	roomMgr = RoomManagerPtr()
+	timeTicker := time.NewTicker(time.Millisecond * time.Duration(int32(1000 / 15)))
+	defer func() {
+		timeTicker.Stop()
+		log.Print("loop end")		
+	}()
+	
+	for {
+		select {
+			case <-timeTicker.C:
+				roomMgr.Loop()
+		}
+	}
+}
 
 func socketHandler(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
@@ -17,24 +40,21 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		log.Print("upgrade:", err)
 		return
 	}
-	defer c.Close()
+	defer c.Close()	
+	deliveries := utilities.ParseMessage(c, MaxPackageLen, utilities.WS_REQUEST)
+	
 	for {
-		mt, message, err := c.ReadMessage()
-		if err != nil {
-			log.Println("read:", err)
-			break
-		}
-		log.Printf("recv: %s", message)
-		err = c.WriteMessage(mt, message)
-		if err != nil {
-			log.Println("write:", err)
-			break
+		select {
+			case recvData, _ := <-deliveries:
+				j2 := make(map[string]interface{})
+				err = json.Unmarshal(recvData, &j2)
+				roomMgr.HandleNetMsg(j2)
 		}
 	}
 }
 
-func main() {
-	fmt.Println(".....")	
+func main() {	
+	go mainloop()	
 	http.HandleFunc("/game", socketHandler)
 	err := http.ListenAndServe(*addr, nil)
 	if err != nil {

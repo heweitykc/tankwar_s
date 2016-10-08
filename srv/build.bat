@@ -1,3 +1,5 @@
 SET GOPATH="E:\mywork\tankwar_s\srv"
-go run src/main.go
+cd src
+go build .
+src.exe
 pause
