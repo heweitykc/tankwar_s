@@ -2,13 +2,11 @@
 
 import (
 	"log"
-	"github.com/gorilla/websocket"
 )
 
 type Player struct {
 	// 
-	uid   		uint64
-	conn 		*websocket.Conn
+	uid   		uint64	
 	
 	// spatial attribute
 	x			uint32
@@ -20,15 +18,18 @@ type Player struct {
 	health		int32
 	speed		int32
 	energy		int32	
+	
+	status		int32
+	
+	room		*Room
 }
 
 func (this *Player) Log(){
 	log.Print("player id ...", this.uid)
 }
 
-func (this *Player) Create(uid uint64, conn *websocket.Conn){
+func (this *Player) Create(uid uint64){
 	this.uid = uid	
-	this.conn = conn
 
 	this.x = 0	
 	this.y =  0	
@@ -43,6 +44,11 @@ func (this *Player) Create(uid uint64, conn *websocket.Conn){
 func (this *Player) Loop() {
 	
 }
+
+func (this *Player) Dispose() {
+	this.room.RemoveUser(this.uid)
+}
+
 
 
 

@@ -1,8 +1,8 @@
 ﻿package main
 
 import (
-	"log"
-	"github.com/gorilla/websocket"
+	"log"	
+	"reflect"
 )
 
 var __roomMgr *RoomMgr
@@ -17,28 +17,43 @@ func RoomManagerPtr() *RoomMgr {
 type RoomMgr struct {
 	roomcount uint64
 	playercount uint64
-	rooms  map[uint64]*Room
+	rooms  		map[uint64]*Room
 	players  	map[uint64]*Player
 }
 
 func (this *RoomMgr) Create() *RoomMgr {
 	this.rooms = make(map[uint64]*Room)
+	this.players = make(map[uint64]*Player)
+	
 	this.roomcount = 100
 	//this.roomIdGen = new(util.UniqueIDGenerator).Create()
 	log.Print("RoomMgr Init")
 	return this
 }
 
-func (this *RoomMgr) AddUser(uid uint64, conn *websocket.Conn){
+func (this *RoomMgr) AddUser(uid uint64){
 	this.playercount++
 	
 	newplayer := new(Player)
-	newplayer.Create(uid, conn)
+	newplayer.Create(uid)
 	
 	this.players[uid] = newplayer	
 	log.Print("new player added ", uid)
 	
 	this.SearchRoomAndInsertUser(uid)
+	
+	log.Print("new user")
+}
+
+func (this *RoomMgr) RemoveUser(uid uint64){
+	p := this.players[uid] 
+	if p == nil {
+		return
+	}
+	p.Dispose()
+	delete(this.players, uid)
+	
+	log.Print("remove user")
 }
 
 func (this *RoomMgr) SearchRoomAndInsertUser(uid uint64) {
@@ -65,7 +80,14 @@ func (this *RoomMgr) Loop() {
 	}
 }
 
-func (this *RoomMgr) HandleNetMsg(msg map[string]interface{}){		
-	var msgid = msg["id"]
-	log.Print("id=",  msgid)
+func (this *RoomMgr) HandleNetMsg(msg map[string]interface{}, current_uid uint64){			
+	var msgid = uint32(msg["id"].(float64))
+	log.Print("typeof(id)", reflect.TypeOf(msg["id"]))
+	log.Print("id=",  msgid, "  uid=", current_uid)
+	if msgid == 10000 {
+		log.Print("AddUser=",  current_uid)
+		this.AddUser(current_uid)		
+	} else {
+		
+	}			
 }

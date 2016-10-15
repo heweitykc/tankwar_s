@@ -76,8 +76,6 @@ func ParseMessage(c *websocket.Conn, maxPackageLen uint32, magic WS_TYPE) <-chan
 				if 0 == maxPackageLen || packageLen < maxPackageLen {
 					message := buff[PacageHeadLen:]
 					if int(packageLen) == len(message) {
-						//						log.Printf("recv: %s", message)
-						//						continue
 						deliveries <- message
 						continue
 					}

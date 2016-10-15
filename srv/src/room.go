@@ -24,6 +24,11 @@ func (this *Room) Create(roomid uint64){
 
 func (this *Room) AddUser(newplayer *Player){	
 	this.players[newplayer.uid] = newplayer	
+	newplayer.room = this
+}
+
+func (this *Room) RemoveUser(uid uint64){	
+	delete(this.players, uid)
 }
 
 func (this *Room) Loop() {
