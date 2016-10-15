@@ -1,3 +1,3 @@
-SET GOPATH="E:\mywork\tankwar_s\srv"
+SET GOPATH=%cd%
 go get github.com/gorilla/websocket
 pause
