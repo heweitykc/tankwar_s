@@ -19,7 +19,8 @@ var addr = flag.String("addr", "0.0.0.0:8080", "http service address")
 var upgrader = websocket.Upgrader{}
 var roomMgr *RoomMgr
 var uid_count = (uint64)(0)
-
+var connList map[uint64]*websocket.Conn = make(map[uint64]*websocket.Conn)
+	
 func mainloop(){
 	roomMgr = RoomManagerPtr()
 	logicTimeTicker := time.NewTicker(time.Millisecond * time.Duration(int32(1000)))
@@ -31,10 +32,10 @@ func mainloop(){
 	
 	for {
 		select {
-			case <-logicTimeTicker.C:
+			case <-timeTicker.C:
 				roomMgr.Update(1000/15)
 				
-			case <-timeTicker.C:
+			case <-logicTimeTicker.C:
 				roomMgr.FixedUpdate(1000)				
 		}
 	}
@@ -50,10 +51,11 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	current_uid := uid_count
 	defer func() {
 		roomMgr.RemoveUser(current_uid)
+		delete(connList, current_uid)
 		c.Close()	
 	}()
 	deliveries := utilities.ParseMessage(c, MaxPackageLen, utilities.WS_REQUEST)
-		
+	connList[current_uid] = c
 	log.Print("player connected current_uid=", current_uid)
 	for {
 		select {
@@ -69,6 +71,11 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 Finish_Label:
 	log.Println("conn close() ", current_uid)	
+}
+
+func SendPlayerMsg(uid uint64, msg *map[string]interface{}){
+	log.Print("SendPlayerMsg uid = ", uid)
+	utilities.SendMessage(connList[uid], msg, utilities.WS_REQUEST)
 }
 
 func main() {	

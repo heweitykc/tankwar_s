@@ -39,9 +39,7 @@ func (this *RoomMgr) AddUser(uid uint64){
 	this.players[uid] = newplayer	
 	log.Print("new player added ", uid)
 	
-	this.SearchRoomAndInsertUser(uid)
-	
-	log.Print("new user")
+	this.SearchRoomAndInsertUser(uid)	
 }
 
 func (this *RoomMgr) RemoveUser(uid uint64){
@@ -57,7 +55,10 @@ func (this *RoomMgr) RemoveUser(uid uint64){
 
 func (this *RoomMgr) SearchRoomAndInsertUser(uid uint64) {
 	var availableRoom *Room
-	for _, room := range this.rooms {
+	length := len(this.rooms)
+	log.Print("rooms.length = ", length)
+	
+	for _, room := range this.rooms {		
 		if room.IsFull() == false {
 			availableRoom = room
 			break
@@ -66,10 +67,12 @@ func (this *RoomMgr) SearchRoomAndInsertUser(uid uint64) {
 	
 	this.roomcount++
 	roomid := this.roomcount
-	availableRoom = new(Room)
-	availableRoom.Create(roomid)
-	this.rooms[roomid] = availableRoom
-	
+	if availableRoom == nil {
+		availableRoom = new(Room)
+		availableRoom.Create(roomid)
+		this.rooms[roomid] = availableRoom
+		log.Print("new room = ", roomid)	
+	}	
 	availableRoom.AddUser(this.players[uid])
 }
 
@@ -85,14 +88,13 @@ func (this *RoomMgr) FixedUpdate(dt float64) {
 	}
 }
 
-
 func (this *RoomMgr) HandleNetMsg(msg map[string]interface{}, current_uid uint64){			
-	var msgid = uint32(msg["id"].(float64))	
+	var msgid = uint32(msg["id"].(float64))
 	log.Print("id=",  msgid, "  uid=", current_uid)
-	if msgid == 10000 {
+	if msgid == MSG_ENTER {
 		log.Print("AddUser=",  current_uid)
 		this.AddUser(current_uid)		
 	} else {
-		
+		this.players[current_uid].HandleNetMsg(msg)
 	}			
 }

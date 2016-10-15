@@ -9,14 +9,15 @@ type Player struct {
 	uid   		uint64	
 	
 	// spatial attribute
-	x			uint32
-	y			uint32
-	rot			uint32
-	cannon		uint32
+	x			int32
+	y			int32
+	rot			int32
+	cannon		int32
 	
 	// property
 	health		int32
-	speed		int32
+	speedx		int32
+	speedy		int32
 	energy		int32	
 	
 	status		int32
@@ -37,12 +38,14 @@ func (this *Player) Create(uid uint64){
 	this.cannon = 0
 	
 	this.health = 100	
-	this.speed =  1	
+	this.speedx =  0	
+	this.speedy =  0	
 	this.energy = 100	
 }
 
 func (this *Player) Update(dt float64) {
-	
+	this.x += this.speedx
+	this.y += this.speedy
 }
 
 func (this *Player) FixedUpdate(dt float64) {
@@ -51,6 +54,15 @@ func (this *Player) FixedUpdate(dt float64) {
 
 func (this *Player) Dispose() {
 	this.room.RemoveUser(this.uid)
+}
+
+func (this *Player) HandleNetMsg(msg map[string]interface{}){			
+	var msgid = uint32(msg["id"].(float64))	
+	if msgid == MSG_MOVE {
+		
+	} else if msgid == MSG_FIRE {
+		
+	}
 }
 
 
