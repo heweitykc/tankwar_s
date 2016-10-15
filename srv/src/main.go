@@ -22,7 +22,8 @@ var uid_count = (uint64)(0)
 
 func mainloop(){
 	roomMgr = RoomManagerPtr()
-	timeTicker := time.NewTicker(time.Millisecond * time.Duration(int32(1000 / 15)))
+	logicTimeTicker := time.NewTicker(time.Millisecond * time.Duration(int32(1000)))
+	timeTicker := time.NewTicker(time.Millisecond * time.Duration(int32(1000/15)))
 	defer func() {
 		timeTicker.Stop()
 		log.Print("loop end")
@@ -30,8 +31,11 @@ func mainloop(){
 	
 	for {
 		select {
+			case <-logicTimeTicker.C:
+				roomMgr.Update(1000/15)
+				
 			case <-timeTicker.C:
-				roomMgr.Loop()
+				roomMgr.FixedUpdate(1000)				
 		}
 	}
 }

@@ -1,8 +1,7 @@
 ﻿package main
 
 import (
-	"log"	
-	"reflect"
+	"log"		
 )
 
 var __roomMgr *RoomMgr
@@ -74,15 +73,21 @@ func (this *RoomMgr) SearchRoomAndInsertUser(uid uint64) {
 	availableRoom.AddUser(this.players[uid])
 }
 
-func (this *RoomMgr) Loop() {
+func (this *RoomMgr) Update(dt float64) {
 	for _, room := range this.rooms {
-		room.Loop()
+		room.Update(dt)
 	}
 }
 
+func (this *RoomMgr) FixedUpdate(dt float64) {
+	for _, room := range this.rooms {
+		room.FixedUpdate(dt)
+	}
+}
+
+
 func (this *RoomMgr) HandleNetMsg(msg map[string]interface{}, current_uid uint64){			
-	var msgid = uint32(msg["id"].(float64))
-	log.Print("typeof(id)", reflect.TypeOf(msg["id"]))
+	var msgid = uint32(msg["id"].(float64))	
 	log.Print("id=",  msgid, "  uid=", current_uid)
 	if msgid == 10000 {
 		log.Print("AddUser=",  current_uid)

@@ -41,8 +41,12 @@ func (this *Player) Create(uid uint64){
 	this.energy = 100	
 }
 
-func (this *Player) Loop() {
+func (this *Player) Update(dt float64) {
 	
+}
+
+func (this *Player) FixedUpdate(dt float64) {
+	log.Print(this.uid, " FixedUpdate")
 }
 
 func (this *Player) Dispose() {

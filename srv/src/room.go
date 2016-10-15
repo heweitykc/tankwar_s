@@ -31,10 +31,16 @@ func (this *Room) RemoveUser(uid uint64){
 	delete(this.players, uid)
 }
 
-func (this *Room) Loop() {
+func (this *Room) Update(dt float64) {
 	for _, player := range this.players {
-		player.Loop()
-	}	
+		player.Update(dt)
+	}
+}
+
+func (this *Room) FixedUpdate(dt float64) {
+	for _, player := range this.players {
+		player.FixedUpdate(dt)
+	}
 }
 
 func (this *Room) IsFull() bool {	
