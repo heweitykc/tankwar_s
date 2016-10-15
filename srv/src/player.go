@@ -6,7 +6,7 @@ import (
 
 type Player struct {
 	// 
-	uid   		uint64	
+	uid   		uint64
 	
 	// spatial attribute
 	x			int32
@@ -18,7 +18,7 @@ type Player struct {
 	health		int32
 	speedx		int32
 	speedy		int32
-	energy		int32	
+	energy		int32
 	
 	status		int32
 	

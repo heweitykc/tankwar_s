@@ -26,6 +26,7 @@ func (this *Room) AddUser(newplayer *Player){
 	this.players[newplayer.uid] = newplayer	
 	newplayer.room = this
 	this.syncUserEnter(newplayer.uid)
+	this.syncRoom(newplayer.uid)
 }
 
 func (this *Room) RemoveUser(uid uint64){	
@@ -53,6 +54,7 @@ func (this *Room) IsFull() bool {
 
 //同步新玩家的房间数据
 func (this *Room) syncRoom(uid_enter uint64){
+	log.Print("syncRoom : uid_enter=", uid_enter)
 	msg := make(map[string]interface{})
 	msg["id"] = MSG_ENTER_
 	msg["room"] = make(map[uint64]interface{})
@@ -98,6 +100,7 @@ func (this *Room) syncUserLeave(uid_leave uint64){
 }
 
 func fillJsonData(p *Player, msg map[string]interface{}){
+	msg["uid"] 	  = p.uid
 	msg["x"] 	  = p.x
 	msg["y"] 	  = p.y
 	msg["rot"]    = p.rot
